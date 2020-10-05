@@ -3,9 +3,7 @@ name: Docker
 on:
   push:
     branches:
-      - master
-    tags:
-      - '*'
+      - test
   # 現時点では、GitHub ActionsのWeb UIは、過去に実行したジョブの再実行はサポート
   # しているが、指定したタグに対する実行などはサポートしていない。代替手段とし
   # て、GitHub APIを使ったビルドの実行を可能とするよう、以下を設定しておく。
@@ -47,7 +45,6 @@ jobs:
     #
     # 以下の条件では、`env.*`や`secrets.*`は使えない。
     # https://help.github.com/en/actions/reference/context-and-expression-syntax-for-github-actions
-    if: github.repository == 'l3tnun/EPGStation'
     strategy:
       matrix:
         platform:
