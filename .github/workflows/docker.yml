@@ -76,28 +76,21 @@ jobs:
       - name: Build image
         # 現時点では、`--squash`などの実験的機能はGitHub Actionsでは動かない
         run: |-
-          docker build -t ${{ secrets.DOCKERHUB_IMAGE }}:${VERSION}-${{ matrix.platform }}-${{ matrix.arch }} -f Dockerfile.${{ matrix.platform }} --no-cache --build-arg arch=${{ matrix.arch }} .
-      - name: Login to DockerHub
-        # DOCKERHUB_TOKENが登録されていない場合は、以下は失敗する
-        run: |-
-          docker login -u "${{ secrets.DOCKERHUB_USER }}" -p "${{ secrets.DOCKERHUB_TOKEN }}"
-      - name: Push image
-        run: |-
-          docker push ${{ secrets.DOCKERHUB_IMAGE }}:${VERSION}-${{ matrix.platform }}-${{ matrix.arch }}
+          docker build -t ${VERSION}-${{ matrix.platform }}-${{ matrix.arch }} -f Dockerfile.${{ matrix.platform }} --no-cache --build-arg arch=${{ matrix.arch }} .
       - name: Update latest tags for each platform
         run: |-
-          docker tag ${{ secrets.DOCKERHUB_IMAGE }}:${VERSION}-${{ matrix.platform }}-${{ matrix.arch }} ${{ secrets.DOCKERHUB_IMAGE }}:${{ matrix.platform }}-${{ matrix.arch }}
-          docker push ${{ secrets.DOCKERHUB_IMAGE }}:${{ matrix.platform }}-${{ matrix.arch }}
+          docker tag ${VERSION}-${{ matrix.platform }}-${{ matrix.arch }} ${{ matrix.platform }}-${{ matrix.arch }}
+          docker push ${{ matrix.platform }}-${{ matrix.arch }}
         if: env.VERSION != 'master'
       - name: Update the main platform tags
         run: |-
-          docker tag ${{ secrets.DOCKERHUB_IMAGE }}:${VERSION}-${{ matrix.platform }}-${{ matrix.arch }} ${{ secrets.DOCKERHUB_IMAGE }}:${VERSION}-${{ matrix.arch }}
-          docker push ${{ secrets.DOCKERHUB_IMAGE }}:${VERSION}-${{ matrix.arch }}
+          docker tag ${VERSION}-${{ matrix.platform }}-${{ matrix.arch }} ${VERSION}-${{ matrix.arch }}
+          docker push ${VERSION}-${{ matrix.arch }}
         if: matrix.platform == env.MAIN_PLATFORM
       - name: Update latest tags for the main platform
         run: |-
-          docker tag ${{ secrets.DOCKERHUB_IMAGE }}:${{ matrix.platform }}-${{ matrix.arch }} ${{ secrets.DOCKERHUB_IMAGE }}:${{ matrix.arch }}
-          docker push ${{ secrets.DOCKERHUB_IMAGE }}:${{ matrix.arch }}
+          docker tag ${{ matrix.platform }}-${{ matrix.arch }} ${{ matrix.arch }}
+          docker push ${{ matrix.arch }}
         if: env.VERSION != 'master' && matrix.platform == env.MAIN_PLATFORM
   build-multiarch-image:
     strategy:
@@ -114,9 +107,6 @@ jobs:
       - name: Override VERSION
         run: |-
           echo ::set-env name=VERSION::${{ github.event.client_payload.ref }}
-      - name: Login to DockerHub
-        run: |-
-          docker login -u ${{ secrets.DOCKERHUB_USER }} -p ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Create and push the manifest for each platform
         run: |-
           docker manifest create ${{ secrets.DOCKERHUB_IMAGE }}:${VERSION}-${{ matrix.platform }} ${{ secrets.DOCKERHUB_IMAGE }}:${VERSION}-${{ matrix.platform }}-amd64 ${{ secrets.DOCKERHUB_IMAGE }}:${VERSION}-${{ matrix.platform }}-arm32v7 ${{ secrets.DOCKERHUB_IMAGE }}:${VERSION}-${{ matrix.platform }}-arm64v8
