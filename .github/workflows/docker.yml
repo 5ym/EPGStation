@@ -65,11 +65,9 @@ jobs:
         uses: actions/checkout@v2
         with:
           ref: ${{ github.event.client_payload.ref }}
-        if: github.event_name == 'repository_dispatch'
       - name: Override VERSION
         run: |-
           echo ::set-env name=VERSION::${{ github.event.client_payload.ref }}
-        if: github.event_name == 'repository_dispatch'
       - name: Setup QEMU user-mode emulation
         run: |-
           sudo apt-get update
@@ -116,7 +114,6 @@ jobs:
       - name: Override VERSION
         run: |-
           echo ::set-env name=VERSION::${{ github.event.client_payload.ref }}
-        if: github.event_name == 'repository_dispatch'
       - name: Login to DockerHub
         run: |-
           docker login -u ${{ secrets.DOCKERHUB_USER }} -p ${{ secrets.DOCKERHUB_TOKEN }}
