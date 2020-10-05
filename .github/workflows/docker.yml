@@ -60,14 +60,11 @@ jobs:
       - uses: actions/checkout@v2
       - name: Set VERSION
         run: |-
-          echo ::set-env name=VERSION::${GITHUB_REF#refs/*/}
+          echo ::set-env name=VERSION::test
       - name: Checkout a specific src
         uses: actions/checkout@v2
         with:
           ref: ${{ github.event.client_payload.ref }}
-      - name: Override VERSION
-        run: |-
-          echo ::set-env name=VERSION::${{ github.event.client_payload.ref }}
       - name: Setup QEMU user-mode emulation
         run: |-
           sudo apt-get update
@@ -103,10 +100,7 @@ jobs:
     steps:
       - name: Set VERSION
         run: |-
-          echo ::set-env name=VERSION::${GITHUB_REF#refs/*/}
-      - name: Override VERSION
-        run: |-
-          echo ::set-env name=VERSION::${{ github.event.client_payload.ref }}
+          echo ::set-env name=VERSION::test
       - name: Create and push the manifest for each platform
         run: |-
           docker manifest create ${{ secrets.DOCKERHUB_IMAGE }}:${VERSION}-${{ matrix.platform }} ${{ secrets.DOCKERHUB_IMAGE }}:${VERSION}-${{ matrix.platform }}-amd64 ${{ secrets.DOCKERHUB_IMAGE }}:${VERSION}-${{ matrix.platform }}-arm32v7 ${{ secrets.DOCKERHUB_IMAGE }}:${VERSION}-${{ matrix.platform }}-arm64v8
